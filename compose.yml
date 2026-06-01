@@ -1,0 +1,49 @@
+services:
+  otel-gpu-collector:
+    image: ghcr.io/openlit/otel-gpu-collector:latest
+    environment:
+      OTEL_SERVICE_NAME: gpu-fleet
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=prod,team=ml-platform"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otelcol:4317"
+      OTEL_GPU_EBPF_ENABLED: "true"
+    cap_add: [ SYS_ADMIN, SYS_RESOURCE ]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - { driver: nvidia, count: all, capabilities: [ gpu ] }
+
+  otelcol:
+    image: otel/opentelemetry-collector-contrib:0.152.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes: ["./otelcol.yaml:/etc/otelcol/config.yaml"]
+    ports: ["4317:4317"]
+
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:latest
+    command: ["-opentelemetry.usePrometheusNaming", "-vmalert.proxyURL=http://vmalert:8880"]
+    ports: ["8428:8428"]
+    volumes: ["vm-data:/victoria-metrics-data"]
+
+  vmalert:
+    image: victoriametrics/vmalert:latest
+    command:
+      - "-datasource.url=http://victoriametrics:8428"
+      - "-remoteWrite.url=http://victoriametrics:8428"
+      - "-rule=/etc/vmalert/*.yml"
+      # Replace "-notifier.blackhole" with actual "-notifier.url=<alertmanager_url>"
+      - "-notifier.blackhole"
+    volumes: ["./rules:/etc/vmalert"]
+
+  grafana:
+    image: grafana/grafana:latest
+    ports: ["3000:3000"]
+    environment:
+      - GF_INSTALL_PLUGINS=victoriametrics-logs-datasource
+    volumes:
+      - grafanadata:/var/lib/grafana
+      - ./provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./provisioning/dashboards/dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yml
+      - ./provisioning/dashboards/openlit-demo.json:/var/lib/grafana/dashboards/openlit-demo.json
+
+volumes: { vm-data: {}, grafanadata: {} }
