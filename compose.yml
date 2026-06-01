@@ -27,7 +27,7 @@ services:
   # otelcol => vmagent
   vmagent:
     image: victoriametrics/vmagent:latest
-    command: [ "-opentelemetry.usePrometheusNaming", "-remoteWrite.streamAggr.config=/etc/vm/aggr.yaml", "-remoteWrite.url=http://victoriametrics:8428" ]
+    command: [ "-opentelemetry.usePrometheusNaming", "-remoteWrite.streamAggr.config=/etc/vm/aggr.yml", "-remoteWrite.url=http://victoriametrics:8428" ]
     volumes: [ "./stream-aggregation.yml:/etc/vm/aggr.yml" ]
 
   # vmagent => victoriametrics
