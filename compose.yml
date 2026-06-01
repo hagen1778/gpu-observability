@@ -6,8 +6,8 @@ services:
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=prod,team=ml-platform"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otelcol:4317"
       OTEL_GPU_EBPF_ENABLED: "true"
-      CUDA_HOME: /usr/local/cuda
       OTEL_METRIC_EXPORT_INTERVAL: 10000
+      CUDA_HOME: /usr/local/cuda
     cap_add: [ SYS_ADMIN, SYS_RESOURCE, BPF, PERFMON ]
     volumes:
       - /usr/local/cuda-12/targets/x86_64-linux/lib/libcudart.so.12:/usr/local/cuda/lib64/libcudart.so:ro
@@ -27,7 +27,10 @@ services:
   # otelcol => vmagent
   vmagent:
     image: victoriametrics/vmagent:latest
-    command: [ "-opentelemetry.usePrometheusNaming", "-remoteWrite.streamAggr.config=/etc/vm/aggr.yml", "-remoteWrite.url=http://victoriametrics:8428" ]
+    command:
+      - "-opentelemetry.usePrometheusNaming"
+      - "-remoteWrite.streamAggr.config=/etc/vm/aggr.yml"
+      - "-remoteWrite.url=http://victoriametrics:8428/api/v1/write"
     volumes: [ "./stream-aggregation.yml:/etc/vm/aggr.yml" ]
 
   # vmagent => victoriametrics
