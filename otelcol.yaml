@@ -5,7 +5,7 @@ receivers:
         endpoint: 0.0.0.0:4317
 
 exporters:
-  otlp_http/vm-metrics: { metrics_endpoint: http://victoriametrics:8428/opentelemetry/v1/metrics }
+  otlp_http/vm-metrics: { metrics_endpoint: http://vmagent:8429/opentelemetry/v1/metrics }
 
 service:
   pipelines:

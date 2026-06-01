@@ -1,0 +1,6 @@
+- name: gpu_kernel_launch_calls_total
+  match: 'gpu_kernel_launch_calls_total'
+  interval: 1m
+  without: [cuda_kernel_name]
+  outputs: [total]
+  keep_metric_names: true

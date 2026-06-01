@@ -6,24 +6,36 @@ services:
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=prod,team=ml-platform"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otelcol:4317"
       OTEL_GPU_EBPF_ENABLED: "true"
-    cap_add: [ SYS_ADMIN, SYS_RESOURCE ]
+      CUDA_HOME: /usr/local/cuda
+      OTEL_METRIC_EXPORT_INTERVAL: 10000
+    cap_add: [ SYS_ADMIN, SYS_RESOURCE, BPF, PERFMON ]
+    volumes:
+      - /usr/local/cuda-12/targets/x86_64-linux/lib/libcudart.so.12:/usr/local/cuda/lib64/libcudart.so:ro
     deploy:
       resources:
         reservations:
           devices:
             - { driver: nvidia, count: all, capabilities: [ gpu ] }
 
+  # otel-gpu-collector => otelcol
   otelcol:
     image: otel/opentelemetry-collector-contrib:0.152.0
-    command: ["--config=/etc/otelcol/config.yaml"]
-    volumes: ["./otelcol.yaml:/etc/otelcol/config.yaml"]
-    ports: ["4317:4317"]
+    command: [ "--config=/etc/otelcol/config.yaml" ]
+    volumes: [ "./otelcol.yaml:/etc/otelcol/config.yaml" ]
+    ports: [ "4317:4317" ]
 
+  # otelcol => vmagent
+  vmagent:
+    image: victoriametrics/vmagent:latest
+    command: [ "-opentelemetry.usePrometheusNaming", "-remoteWrite.streamAggr.config=/etc/vm/aggr.yaml", "-remoteWrite.url=http://victoriametrics:8428" ]
+    volumes: [ "./stream-aggregation.yml:/etc/vm/aggr.yml" ]
+
+  # vmagent => victoriametrics
   victoriametrics:
     image: victoriametrics/victoria-metrics:latest
-    command: ["-opentelemetry.usePrometheusNaming", "-vmalert.proxyURL=http://vmalert:8880"]
-    ports: ["8428:8428"]
-    volumes: ["vm-data:/victoria-metrics-data"]
+    command: [ "-vmalert.proxyURL=http://vmalert:8880" ]
+    ports: [ "8428:8428" ]
+    volumes: [ "vm-data:/victoria-metrics-data" ]
 
   vmalert:
     image: victoriametrics/vmalert:latest
@@ -33,11 +45,11 @@ services:
       - "-rule=/etc/vmalert/*.yml"
       # Replace "-notifier.blackhole" with actual "-notifier.url=<alertmanager_url>"
       - "-notifier.blackhole"
-    volumes: ["./rules:/etc/vmalert"]
+    volumes: [ "./rules:/etc/vmalert" ]
 
   grafana:
     image: grafana/grafana:latest
-    ports: ["3000:3000"]
+    ports: [ "3000:3000" ]
     environment:
       - GF_INSTALL_PLUGINS=victoriametrics-logs-datasource
     volumes:
@@ -46,4 +58,4 @@ services:
       - ./provisioning/dashboards/dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yml
       - ./provisioning/dashboards/openlit-demo.json:/var/lib/grafana/dashboards/openlit-demo.json
 
-volumes: { vm-data: {}, grafanadata: {} }
+volumes: { vm-data: { }, grafanadata: { } }
