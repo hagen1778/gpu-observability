@@ -1,0 +1,44 @@
+groups:
+  - name: gpu.recording
+    interval: 30s
+    rules:
+      - record: team:gpu_utilization_ratio:avg5m
+        expr: avg by (team, hw_name, gpu_index) (avg_over_time(hw_gpu_utilization_ratio[5m]))
+
+      - record: host_name:gpu_power_draw_kw:avg5m
+        expr: sum by (host_name) (avg_over_time(hw_gpu_power_draw_watts[5m])) / 1000
+
+      - record: host_name:energy_consumed_kw:1h
+        expr: sum by (host_name) (increase(hw_gpu_energy_consumed_joules_total[1h])) / 3.6e6
+
+      - record: team:dollars_wasted_per_hour
+        expr: sum by (team) ((1 - team:gpu_utilization_ratio:avg5m) * 2.80)
+
+  - name: gpu.alerts
+    rules:
+      - alert: GPUUnderutilized
+        expr: team:gpu_utilization_ratio:avg5m < 0.10
+        for: 1h
+        labels: { severity: warning, category: cost }
+        annotations:
+          summary: "GPU {{ $labels.gpu_index }} for team {{ $labels.team }} is <10% utilised for 1h"
+          runbook: "https://wiki/runbooks/gpu-idle"
+
+      - alert: GPUMemoryPressure
+        expr: hw_gpu_memory_usage_bytes / hw_gpu_memory_limit_bytes > 0.95
+        for: 5m
+        labels: { severity: warning, category: capacity }
+
+      - alert: GPUErrorRate
+        expr: sum(rate(hw_errors_total[5m])) by(error_type) > 0
+        for: 5m
+        labels: { severity: critical, category: hardware }
+        annotations:
+          summary: "Non-zero error rate on {{ $labels.hw_id }} - {{ $labels.error_type }}"
+
+      - alert: GPUKernelChurn
+        expr: sum by (host_name) (rate(gpu_kernel_launch_calls_total[1m])) > 50000
+        for: 10m
+        labels: { severity: info, category: workload }
+        annotations:
+          summary: "{{ $labels.host_name }} >50k kernel launches/sec - check for kernel fusion opportunity"
