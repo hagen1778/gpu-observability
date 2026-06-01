@@ -1,5 +1,5 @@
-- name: gpu_kernel_launch_calls_total
-  match: 'gpu_kernel_launch_calls_total'
+- name: {__name__=~".*_(total|count|sum|bucket)"}
+  match: '{cuda_kernel_name!=""}'
   interval: 1m
   without: [cuda_kernel_name]
   outputs: [total]
