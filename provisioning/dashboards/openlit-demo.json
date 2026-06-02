@@ -17,10 +17,7 @@
             "kind": "DataQuery",
             "group": "grafana",
             "version": "v0",
-            "spec": {},
-            "labels": {
-              "grafana.app/export-label": "grafana-1"
-            }
+            "spec": {}
           },
           "enable": true,
           "hide": true,
@@ -1160,7 +1157,7 @@
         "kind": "Panel",
         "spec": {
           "id": 18,
-          "title": "Energy Consumed per second (Wh)",
+          "title": "Energy Consumption per second (Wh)",
           "description": "",
           "links": [],
           "data": {
@@ -1179,7 +1176,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum by (gpu_index) (rate(hw_gpu_energy_consumed_joules_total{service_name=~\"$application\", deployment_environment=~\"$environment\", host_name=~\"$host\", gpu_index=~\"$gpu\"}[5m])) / 300000",
+                        "expr": "sum by (gpu_index) (rate(hw_gpu_energy_consumed_joules_total{service_name=~\"$application\", deployment_environment=~\"$environment\", host_name=~\"$host\", gpu_index=~\"$gpu\"}[5m])) / 3600000",
                         "legendFormat": "GPU {{gpu_index}}",
                         "range": true
                       }
@@ -1534,7 +1531,7 @@
                       },
                       "spec": {
                         "editorMode": "code",
-                        "expr": "sum by (gpu_index, error_type) (increase(hw_errors_total{service_name=~\"$application\", deployment_environment=~\"$environment\", host_name=~\"$host\", gpu_index=~\"$gpu\"}[$__range]))",
+                        "expr": "sum by (hw_name, gpu_index, error_type) (increase(hw_errors_total{service_name=~\"$application\", deployment_environment=~\"$environment\", host_name=~\"$host\", gpu_index=~\"$gpu\"}[$__range]))",
                         "format": "table",
                         "instant": true,
                         "range": false
@@ -1548,13 +1545,6 @@
               "transformations": [
                 {
                   "kind": "Transformation",
-                  "group": "merge",
-                  "spec": {
-                    "options": {}
-                  }
-                },
-                {
-                  "kind": "Transformation",
                   "group": "organize",
                   "spec": {
                     "options": {
@@ -1562,10 +1552,19 @@
                         "Time": true,
                         "__name__": true
                       },
+                      "includeByName": {},
+                      "indexByName": {
+                        "Time": 0,
+                        "Value": 4,
+                        "error_type": 1,
+                        "gpu_index": 3,
+                        "hw_name": 2
+                      },
                       "renameByName": {
                         "Value": "errors",
                         "error_type": "type",
-                        "gpu_index": "GPU"
+                        "gpu_index": "GPU i",
+                        "hw_name": "GPU model"
                       }
                     }
                   }
@@ -1593,14 +1592,6 @@
                       {
                         "value": 0,
                         "color": "green"
-                      },
-                      {
-                        "value": 1,
-                        "color": "orange"
-                      },
-                      {
-                        "value": 10,
-                        "color": "red"
                       }
                     ]
                   },
@@ -1620,7 +1611,20 @@
                     "inspect": false
                   }
                 },
-                "overrides": []
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "scope": "series",
+                      "options": "errors"
+                    },
+                    "properties": [
+                      {
+                        "id": "color"
+                      }
+                    ]
+                  }
+                ]
               }
             }
           }
@@ -2818,7 +2822,7 @@
         "spec": {
           "id": 8,
           "title": "GPU Memory Bandwidth Utilization",
-          "description": "NVML memory controller utilization (bandwidth), distinct from capacity used.",
+          "description": "NVML memory controller utilization (bandwidth)",
           "links": [],
           "data": {
             "kind": "QueryGroup",
