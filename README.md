@@ -42,7 +42,7 @@ The docker-compose spins up the exporter and the observability stack:
 > For some telemetry signals to be emitted, the GPU device must actually perform some work.
 
 After a few minutes the application was running, it should have emitted telemetry to VictoriaMetrics.
-Open the Grafana and navigate to the [provisioned dashboard]():
+Open the Grafana and navigate to the [provisioned dashboard](https://github.com/hagen1778/gpu-observability/blob/main/provisioning/dashboards/openlit-demo.json):
 ![img.png](images/grafana-1.png)
 
 ![img.png](images/grafana-2.png)
