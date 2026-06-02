@@ -1,4 +1,4 @@
-- name: {__name__=~".*_(total|count|sum|bucket)"}
+- name: '{__name__=~".*_(total|count|sum|bucket)"}'
   match: '{cuda_kernel_name!=""}'
   interval: 1m
   without: [cuda_kernel_name]
