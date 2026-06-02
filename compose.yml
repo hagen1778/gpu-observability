@@ -1,4 +1,5 @@
 services:
+  # extract telemetry data from GPU devices
   otel-gpu-collector:
     image: ghcr.io/openlit/otel-gpu-collector:latest
     environment:
@@ -40,6 +41,7 @@ services:
     ports: [ "8428:8428" ]
     volumes: [ "vm-data:/victoria-metrics-data" ]
 
+  # evaluates alerting and recording rules against victoriametrics
   vmalert:
     image: victoriametrics/vmalert:latest
     command:
