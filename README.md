@@ -3,7 +3,7 @@
 This is a demo project to demonstrate how to monitor GPUs by emitting metrics via [Openlit OpenTelemetry GPU Collector](https://github.com/openlit/openlit/tree/main/opentelemetry-gpu-collector)
 and [VictoriaMetrics](https://docs.victoriametrics.com/victoriametrics/).
 
-See also a [demo project for AI observability](https://github.com/hagen1778/ai-observability).
+See also a [demo project for AI observability](https://github.com/VictoriaMetrics/ai-observability).
 
 ## Architecture
 
@@ -18,11 +18,11 @@ The demo consists of the following components:
    This step is optional: if stream aggregation is not needed, OTEL collector can write directly to VictoriaMetrics.
 4. VictoriaMetrics receives metrics from vmagent and stores them in the database.
 5. Grafana provisioned with:
-   - [datasource for metrics](https://github.com/hagen1778/gpu-observability/tree/main/provisioning/datasources)
-   - [dashboard for GPU observability](https://github.com/hagen1778/gpu-observability/blob/main/provisioning/dashboards/openlit-demo.json)
-6. vmalert for running basic [alerting and recording rules](https://github.com/hagen1778/gpu-observability/blob/main/rules/gpu.yml) against VictoriaMetrics.
+   - [datasource for metrics](https://github.com/VictoriaMetrics/gpu-observability/tree/main/provisioning/datasources)
+   - [dashboard for GPU observability](https://github.com/VictoriaMetrics/gpu-observability/blob/main/provisioning/dashboards/openlit-demo.json)
+6. vmalert for running basic [alerting and recording rules](https://github.com/VictoriaMetrics/gpu-observability/blob/main/rules/gpu.yml) against VictoriaMetrics.
 
-See the [compose.yml](https://github.com/hagen1778/gpu-observability/blob/main/compose.yml) for the full list of services.
+See the [compose.yml](https://github.com/VictoriaMetrics/gpu-observability/blob/main/compose.yml) for the full list of services.
 
 ## Quickstart
 
@@ -42,7 +42,7 @@ The docker-compose spins up the exporter and the observability stack:
 > For some telemetry signals to be emitted, the GPU device must actually perform some work.
 
 After a few minutes the application was running, it should have emitted telemetry to VictoriaMetrics.
-Open the Grafana and navigate to the [provisioned dashboard](https://github.com/hagen1778/gpu-observability/blob/main/provisioning/dashboards/openlit-demo.json):
+Open the Grafana and navigate to the [provisioned dashboard](https://github.com/VictoriaMetrics/gpu-observability/blob/main/provisioning/dashboards/openlit-demo.json):
 ![img.png](images/grafana-1.png)
 
 ![img.png](images/grafana-2.png)
