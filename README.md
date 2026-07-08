@@ -9,7 +9,7 @@ See also a [demo project for AI observability](https://github.com/VictoriaMetric
 
 The demo consists of the following components:
 
-![architecture.png](images/architecture.png)
+![stack.png](images/stack.png)
 
 1. [Openlit OpenTelemetry GPU Collector](https://github.com/openlit/openlit/tree/main/opentelemetry-gpu-collector) installed
   on an instance with [Nvidia GPU, CUDA and eBPF kernel support](https://github.com/openlit/openlit/tree/main/opentelemetry-gpu-collector#prerequisites).
@@ -28,6 +28,12 @@ See the [compose.yml](https://github.com/VictoriaMetrics/gpu-observability/blob/
 
 > Make sure that on the instance where you run it on an instance with Linux and NVIDIA/AMD/Intel GPU drivers installed.
 
+Clone this repository:
+```sh
+git clone https://github.com/VictoriaMetrics/gpu-observability
+cd gpu-observability
+```
+
 Start the observability stack via docker-compose:
 ```sh
 docker compose up -d
@@ -35,7 +41,7 @@ docker compose up -d
 
 The docker-compose spins up the exporter and the observability stack:
 1. VictoriaMetrics available at http://localhost:8428/
-4. Grafana available at http://localhost:3000/
+4. Grafana available at http://localhost:3000/ (admin:admin)
 
 > Please verify you have mentioned HTTP ports opened locally when running docker-compose.
 
