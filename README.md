@@ -14,8 +14,9 @@ The demo consists of the following components:
 1. [Openlit OpenTelemetry GPU Collector](https://github.com/openlit/openlit/tree/main/opentelemetry-gpu-collector) installed
   on an instance with [Nvidia GPU, CUDA and eBPF kernel support](https://github.com/openlit/openlit/tree/main/opentelemetry-gpu-collector#prerequisites).
 2. OpenTelemetry collector receives metrics from the GPU Collector and emits them to [vmagent](https://docs.victoriametrics.com/victoriametrics/vmagent/).
-3. vmagent performs [stream aggregation](https://docs.victoriametrics.com/victoriametrics/stream-aggregation/) to strip too expensive dimensions and send the data to VictoriaMetrics.
-   This step is optional: if stream aggregation is not needed, OTEL collector can write directly to VictoriaMetrics.
+3. vmagent performs [stream aggregation](https://docs.victoriametrics.com/victoriametrics/stream-aggregation/) to strip 
+   too expensive dimensions and send the data to VictoriaMetrics. **This step is optional**: if stream aggregation is not needed, 
+   OTEL collector can write directly to VictoriaMetrics.
 4. VictoriaMetrics receives metrics from vmagent and stores them in the database.
 5. Grafana provisioned with:
    - [datasource for metrics](https://github.com/VictoriaMetrics/gpu-observability/tree/main/provisioning/datasources)

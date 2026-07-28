@@ -1,6 +1,5 @@
-- name: '{__name__=~".*_(total|count|sum|bucket)"}'
+- name: { __name__=~"gpu_kernel_grid_size_bucket|gpu_kernel_block_size_bucket" }
   match: '{cuda_kernel_name!=""}'
   interval: 1m
-  without: [cuda_kernel_name]
-  outputs: [total]
-  keep_metric_names: true
+  without: [ cuda_kernel_name ]
+  outputs: [ rate_sum ]
